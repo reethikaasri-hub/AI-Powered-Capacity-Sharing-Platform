@@ -715,28 +715,26 @@ class _MyMachinesScreenState extends State<MyMachinesScreen> {
         for (int i = 0; i < machines.length; i += columns) {
           final rowItems = machines.skip(i).take(columns).toList();
           rows.add(
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (int j = 0; j < columns; j++) ...[
-                    if (j > 0) const SizedBox(width: spacing),
-                    Expanded(
-                      child: j < rowItems.length
-                          ? MachineCard.fromModel(
-                              machine: rowItems[j],
-                              onEdit: () => _showEditMachineModal(rowItems[j]),
-                              onManageAvailability: () {
-                                context.go(
-                                  '/machine-availability/${rowItems[j].id}?name=${Uri.encodeComponent(rowItems[j].name)}',
-                                );
-                              },
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int j = 0; j < columns; j++) ...[
+                  if (j > 0) const SizedBox(width: spacing),
+                  Expanded(
+                    child: j < rowItems.length
+                        ? MachineCard.fromModel(
+                            machine: rowItems[j],
+                            onEdit: () => _showEditMachineModal(rowItems[j]),
+                            onManageAvailability: () {
+                              context.go(
+                                '/machine-availability/${rowItems[j].id}?name=${Uri.encodeComponent(rowItems[j].name)}',
+                              );
+                            },
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                 ],
-              ),
+              ],
             ),
           );
           if (i + columns < machines.length) {

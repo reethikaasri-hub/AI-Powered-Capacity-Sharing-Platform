@@ -167,6 +167,20 @@ class _MachHuntWebMapState extends State<MachHuntWebMap> {
     }
   }
 
+  bool _haveMarkersChanged(List<MachMapMarker> oldList, List<MachMapMarker> newList) {
+    if (identical(oldList, newList)) return false;
+    if (oldList.length != newList.length) return true;
+    for (int i = 0; i < oldList.length; i++) {
+      if (oldList[i].id != newList[i].id ||
+          oldList[i].latitude != newList[i].latitude ||
+          oldList[i].longitude != newList[i].longitude ||
+          oldList[i].matchPercentage != newList[i].matchPercentage) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   void didUpdateWidget(covariant MachHuntWebMap oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -177,7 +191,8 @@ class _MachHuntWebMapState extends State<MachHuntWebMap> {
       return;
     }
 
-    if (widget.markers != oldWidget.markers) {
+    final markersChanged = _haveMarkersChanged(oldWidget.markers, widget.markers);
+    if (markersChanged) {
       _syncMarkers();
     } else if (widget.selectedMarkerId != oldWidget.selectedMarkerId) {
       if (widget.selectedMarkerId != null) {

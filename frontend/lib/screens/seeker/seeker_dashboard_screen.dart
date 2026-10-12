@@ -51,6 +51,10 @@ class _SeekerDashboardScreenState extends State<SeekerDashboardScreen> {
   // Google Maps State & Card Synchronization
   final GlobalKey<MachHuntMapState> _mapKey = GlobalKey<MachHuntMapState>();
   String? _highlightedMachineId;
+  List<MachMapMarker>? _cachedMarkers;
+  String _cachedLocation = '';
+  int _cachedMatchCount = -1;
+  int _cachedMachineCount = -1;
 
   final List<String> _processes = [
     'CNC Milling',
@@ -1482,7 +1486,7 @@ class _SeekerDashboardScreenState extends State<SeekerDashboardScreen> {
     List<MachineModel> availableMachines,
     bool isLoading,
   ) {
-    final markers = _buildMapMarkers(matches, availableMachines);
+    final markers = _getOrBuildMarkers(matches, availableMachines);
     final centerCoords = MapsConfig.getCoordinatesForLocation(
       _selectedLocation,
     );
@@ -1672,6 +1676,23 @@ class _SeekerDashboardScreenState extends State<SeekerDashboardScreen> {
         );
       },
     );
+  }
+
+  List<MachMapMarker> _getOrBuildMarkers(
+    List<MatchResultModel> matches,
+    List<MachineModel> availableMachines,
+  ) {
+    if (_cachedMarkers != null &&
+        _cachedLocation == _selectedLocation &&
+        _cachedMatchCount == matches.length &&
+        _cachedMachineCount == availableMachines.length) {
+      return _cachedMarkers!;
+    }
+    _cachedLocation = _selectedLocation;
+    _cachedMatchCount = matches.length;
+    _cachedMachineCount = availableMachines.length;
+    _cachedMarkers = _buildMapMarkers(matches, availableMachines);
+    return _cachedMarkers!;
   }
 
   List<MachMapMarker> _buildMapMarkers(
@@ -2014,11 +2035,10 @@ class _SeekerDashboardScreenState extends State<SeekerDashboardScreen> {
       rows.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (int j = 0; j < chunk.length; j++) ...[
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (int j = 0; j < chunk.length; j++) ...[
                   if (j > 0) const SizedBox(width: 16),
                   Expanded(
                     child: GestureDetector(
@@ -2072,9 +2092,8 @@ class _SeekerDashboardScreenState extends State<SeekerDashboardScreen> {
               ],
             ),
           ),
-        ),
-      );
-    }
+        );
+      }
     return Column(children: rows);
   }
 

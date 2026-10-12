@@ -1482,52 +1482,50 @@ class _MatchResultsScreenState extends State<MatchResultsScreen> {
         for (int i = 0; i < matches.length; i += columns) {
           final rowItems = matches.skip(i).take(columns).toList();
           rows.add(
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (int j = 0; j < columns; j++) ...[
-                    if (j > 0) const SizedBox(width: spacing),
-                    Expanded(
-                      child: j < rowItems.length
-                          ? MachMatchCard(
-                              matchPercentage: rowItems[j].matchPercentage,
-                              businessName: rowItems[j].businessName,
-                              machineName: rowItems[j].machineName,
-                              machineCategory: rowItems[j].machineCategory,
-                              manufacturer: rowItems[j].manufacturer,
-                              model: rowItems[j].model,
-                              year: rowItems[j].year,
-                              locationAddress: rowItems[j].locationAddress,
-                              hourlyPrice: rowItems[j].hourlyPrice,
-                              capabilityScore:
-                                  rowItems[j].scoreBreakdown.capabilityScore,
-                              availabilityScore:
-                                  rowItems[j].scoreBreakdown.availabilityScore,
-                              distanceScore:
-                                  rowItems[j].scoreBreakdown.distanceScore,
-                              costScore: rowItems[j].scoreBreakdown.costScore,
-                              reliabilityScore:
-                                  rowItems[j].scoreBreakdown.reliabilityScore,
-                              distanceKm: rowItems[j].scoreBreakdown.distanceKm,
-                              matchReasons: rowItems[j].matchReasons,
-                              capabilities: rowItems[j].capabilities,
-                              isVerified: rowItems[j].isVerified,
-                              operatorAvailable: rowItems[j].operatorAvailable,
-                              status: rowItems[j].status,
-                              rating: rowItems[j].averageRating,
-                              completedJobs: rowItems[j].completedJobs,
-                              isSelectedForComparison: _selectedForComparison
-                                  .contains(rowItems[j].machineId),
-                              onToggleComparison: (_) =>
-                                  _toggleComparison(rowItems[j].machineId),
-                              onBook: () => _openBookingModal(rowItems[j]),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int j = 0; j < columns; j++) ...[
+                  if (j > 0) const SizedBox(width: spacing),
+                  Expanded(
+                    child: j < rowItems.length
+                        ? MachMatchCard(
+                            matchPercentage: rowItems[j].matchPercentage,
+                            businessName: rowItems[j].businessName,
+                            machineName: rowItems[j].machineName,
+                            machineCategory: rowItems[j].machineCategory,
+                            manufacturer: rowItems[j].manufacturer,
+                            model: rowItems[j].model,
+                            year: rowItems[j].year,
+                            locationAddress: rowItems[j].locationAddress,
+                            hourlyPrice: rowItems[j].hourlyPrice,
+                            capabilityScore:
+                                rowItems[j].scoreBreakdown.capabilityScore,
+                            availabilityScore:
+                                rowItems[j].scoreBreakdown.availabilityScore,
+                            distanceScore:
+                                rowItems[j].scoreBreakdown.distanceScore,
+                            costScore: rowItems[j].scoreBreakdown.costScore,
+                            reliabilityScore:
+                                rowItems[j].scoreBreakdown.reliabilityScore,
+                            distanceKm: rowItems[j].scoreBreakdown.distanceKm,
+                            matchReasons: rowItems[j].matchReasons,
+                            capabilities: rowItems[j].capabilities,
+                            isVerified: rowItems[j].isVerified,
+                            operatorAvailable: rowItems[j].operatorAvailable,
+                            status: rowItems[j].status,
+                            rating: rowItems[j].averageRating,
+                            completedJobs: rowItems[j].completedJobs,
+                            isSelectedForComparison: _selectedForComparison
+                                .contains(rowItems[j].machineId),
+                            onToggleComparison: (_) =>
+                                _toggleComparison(rowItems[j].machineId),
+                            onBook: () => _openBookingModal(rowItems[j]),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                 ],
-              ),
+              ],
             ),
           );
           if (i + columns < matches.length) {

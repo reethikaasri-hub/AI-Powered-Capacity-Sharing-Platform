@@ -185,24 +185,35 @@
       return;
     }
 
-    // Clear old markers
-    for (const id in activeMarkers) {
-      if (activeMarkers[id]) activeMarkers[id].setMap(null);
+    if (!markers || !markers.length) {
+      for (const id in activeMarkers) {
+        if (activeMarkers[id]) activeMarkers[id].setMap(null);
+      }
+      activeMarkers = {};
+      markersData = {};
+      return;
     }
-    activeMarkers = {};
-    markersData = {};
 
-    if (!markers || !markers.length) return;
+    // Identify removed markers and remove only those from map
+    const incomingIds = {};
+    markers.forEach(function(m) { incomingIds[m.id] = true; });
+    for (const id in activeMarkers) {
+      if (!incomingIds[id]) {
+        if (activeMarkers[id]) activeMarkers[id].setMap(null);
+        delete activeMarkers[id];
+        delete markersData[id];
+      }
+    }
 
     const bounds = new google.maps.LatLngBounds();
     let validCount = 0;
+    let hasNewMarkers = false;
 
     markers.forEach(function(m) {
       const lat = Number(m.latitude);
       const lng = Number(m.longitude);
 
       if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
-        console.warn('[MachHuntWebMap] Safely skipping invalid coordinate record:', m.title || m.id);
         return;
       }
 
@@ -211,32 +222,37 @@
       bounds.extend(pos);
       validCount++;
 
-      const marker = new google.maps.Marker({
-        position: pos,
-        map: mapInstance,
-        title: (m.companyName || m.title) + ' (' + (m.category || '') + ')',
-        icon: createMarkerIcon(false, m.matchPercentage),
-        animation: google.maps.Animation.DROP,
-      });
+      if (activeMarkers[m.id]) {
+        // Reuse existing marker smoothly
+        activeMarkers[m.id].setPosition(pos);
+        activeMarkers[m.id].setTitle((m.companyName || m.title) + ' (' + (m.category || '') + ')');
+        activeMarkers[m.id].setIcon(createMarkerIcon(false, m.matchPercentage));
+      } else {
+        hasNewMarkers = true;
+        const marker = new google.maps.Marker({
+          position: pos,
+          map: mapInstance,
+          title: (m.companyName || m.title) + ' (' + (m.category || '') + ')',
+          icon: createMarkerIcon(false, m.matchPercentage),
+        });
 
-      marker.addListener('click', function() {
-        openInfoWindow(m.id);
-        if (window.machHuntOnMarkerSelected) {
-          window.machHuntOnMarkerSelected(m.id);
-        }
-      });
+        marker.addListener('click', function() {
+          openInfoWindow(m.id);
+          if (window.machHuntOnMarkerSelected) {
+            window.machHuntOnMarkerSelected(m.id);
+          }
+        });
 
-      activeMarkers[m.id] = marker;
+        activeMarkers[m.id] = marker;
+      }
     });
 
-    if (validCount > 1) {
+    if (hasNewMarkers && validCount > 1) {
       mapInstance.fitBounds(bounds, { top: 40, bottom: 40, left: 40, right: 40 });
-    } else if (validCount === 1) {
+    } else if (hasNewMarkers && validCount === 1) {
       mapInstance.setCenter(bounds.getCenter());
       mapInstance.setZoom(13);
     }
-
-    console.log('[MachHuntWebMap] Successfully placed ' + validCount + ' capacity markers');
   }
 
   function selectMarker(markerId) {
